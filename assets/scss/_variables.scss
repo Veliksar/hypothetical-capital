@@ -54,7 +54,7 @@ $fc-stack-gap: 1.5rem;
 $header-height-mobile: 66px;
 $header-height-desktop: max(66px, 5.2083vw);
 
-$grid-lines-color-light: $color-blue-grey;
+$grid-lines-color-light: rgba($color-blue-grey, 0.3);
 $grid-lines-color-dark: rgba($color-slate, 0.3);
 $grid-lines-width: 1px;
 

@@ -1,0 +1,14 @@
+@use '../variables' as *;
+@use '../typography' as *;
+
+.fc-block--cta {
+	background: $color-white;
+	text-align: center;
+
+	.fc-block__text {
+		max-width: fluid-size(280, 576);
+		margin: 1rem auto 0;
+		color: $color-muted;
+		@include body-text;
+	}
+}

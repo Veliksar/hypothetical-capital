@@ -1,0 +1,165 @@
+@use '../variables' as *;
+@use '../typography' as *;
+
+.fc-block--hero {
+	height: 100vh;
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-height: 28rem;
+	padding-top: 6rem;
+	padding-bottom: 6rem;
+	color: $color-white;
+	background-color: $color-navy;
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	overflow: hidden;
+
+	&::before {
+		content: none;
+	}
+
+	.fc-block__grid-lines {
+		position: absolute;
+		top: $header-height-desktop;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: container-max-width();
+		max-width: 100%;
+		z-index: 2;
+		pointer-events: none;
+		display: flex;
+		justify-content: space-between;
+
+		@include screen-mobile {
+			top: $header-height-mobile;
+		}
+	}
+
+	.fc-block__grid-line {
+		flex-shrink: 0;
+		align-self: stretch;
+		width: $grid-lines-width;
+		background-color: $grid-lines-color-dark;
+		transform-origin: top center;
+
+		@include screen-handheld {
+			&:nth-child(2),
+			&:nth-child(4) {
+				display: none;
+			}
+		}
+	}
+
+	.fc-block__inner {
+		position: relative;
+		z-index: 3;
+	}
+
+	.fc-block__overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		pointer-events: none;
+		background-image: linear-gradient(
+			0deg,
+			$color-navy 30%,
+			rgba($color-navy, 0) 130%
+		);
+		background-size: 100% $hero-overlay-gradient-span;
+		background-repeat: no-repeat;
+		background-position: top center;
+	}
+
+	.fc-block__media {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	&:not(.is-hero-intro-ready) {
+		.fc-block__media {
+			opacity: 0;
+		}
+
+		.fc-block__content :is(h1, h2, h3, p),
+		.fc-block__cta {
+			visibility: hidden;
+		}
+
+		.fc-block__grid-line {
+			transform: scaleY(0);
+		}
+	}
+
+	.fc-block__reveal {
+		display: block;
+		overflow: hidden;
+		transform: translateZ(0);
+	}
+
+	.fc-block__content {
+		max-width: 60%;
+		color: $color-hero-text;
+		margin-top: 27vh;
+		@include body-text;
+		@include flow-content;
+		@include wysiwyg-headings($color-white, $color-blue-grey);
+
+		h1 {
+			margin-bottom: 2.5rem;
+
+			@include screen-mobile {
+				margin-bottom: 0;
+			}
+		}
+
+		p {
+			font-size: fluid-size(22, 26);
+			letter-spacing: -0.02em;
+			margin: 0;
+
+			@include screen-mobile {
+				font-size: 18px;
+				color: $color-parchment;
+				margin-top: 1.5rem;
+			}
+		}
+	}
+
+	.fc-block__cta {
+		margin-top: 3.75rem;
+		border: 0;
+		@include corner-bracket-button($color-white);
+
+		&:hover,
+		&:focus-visible {
+			background-color: transparent;
+			color: $color-white;
+		}
+	}
+
+	@include screen-mobile {
+		align-items: flex-end;
+		min-height: 22rem;
+		padding-top: 4rem;
+		padding-bottom: 2.5rem;
+
+		.fc-block__content {
+			max-width: 100%;
+			margin-top: 0;
+		}
+
+		.fc-block__cta {
+			display: flex;
+			width: 100%;
+			margin-top: 2.5rem;
+			padding-block: 1.8125rem;
+		}
+	}
+}

@@ -1,0 +1,217 @@
+@use 'variables' as *;
+
+@mixin font-heading {
+	font-family: $font-family-heading;
+}
+
+@mixin font-body {
+	font-family: $font-family-body;
+}
+
+@mixin type-h1 {
+	@include font-heading;
+	font-size: fluid-size($type-h1-min, $type-h1-max);
+	line-height: $line-height-heading;
+	letter-spacing: -0.04em;
+	font-weight: 400;
+}
+
+@mixin type-h2 {
+	@include font-heading;
+	font-size: fluid-size(28, 58);
+	line-height: $line-height-heading;
+	letter-spacing: -0.02em;
+	font-weight: 400;
+}
+
+@mixin type-h3 {
+	@include font-heading;
+	font-size: fluid-size(22, 26);
+	line-height: $line-height-heading;
+	letter-spacing: -0.02em;
+}
+
+@mixin type-h4 {
+	@include font-heading;
+	font-size: fluid-size(18, 22);
+	line-height: $line-height-heading;
+	letter-spacing: -0.02em;
+}
+
+@mixin type-h5 {
+	@include font-heading;
+	font-size: fluid-size(15, 18);
+	line-height: $line-height-heading;
+	letter-spacing: -0.02em;
+}
+
+@mixin type-h6 {
+	@include font-heading;
+	font-size: fluid-size(14, 16);
+	line-height: $line-height-heading;
+	letter-spacing: -0.02em;
+}
+
+@mixin type-tagline {
+	@include type-h1;
+}
+
+@mixin type-body-l {
+	@include font-body;
+	font-size: fluid-size(22, 26);
+	line-height: $line-height-body;
+}
+
+@mixin type-body-m {
+	@include font-body;
+	font-size: fluid-size(18, 22);
+	line-height: $line-height-body;
+}
+
+@mixin type-body-s {
+	@include font-body;
+	font-size: fluid-size(15, 18);
+	line-height: $line-height-body;
+}
+
+@mixin type-menu {
+	@include font-body;
+	font-size: 1rem;
+	line-height: $line-height-menu;
+}
+
+@mixin type-button {
+	@include font-body;
+	font-size: fluid-size(14, 15);
+	line-height: $line-height-button;
+}
+
+@mixin heading-tight {
+	margin: 0;
+	line-height: $line-height-heading;
+}
+
+@mixin heading-emphasis($color: $color-slate) {
+	strong,
+	b {
+		font-weight: 400;
+		color: $color;
+	}
+}
+
+@mixin heading-level($level, $color: $color-primary, $emphasis-color: $color-slate) {
+	@if $level == 1 {
+		@include type-h1;
+	} @else if $level == 2 {
+		@include type-h2;
+	} @else if $level == 3 {
+		@include type-h3;
+	} @else if $level == 4 {
+		@include type-h4;
+	} @else if $level == 5 {
+		@include type-h5;
+	} @else if $level == 6 {
+		@include type-h6;
+	}
+
+	margin: 0;
+	color: $color;
+	@include heading-emphasis($emphasis-color);
+}
+
+@mixin wysiwyg-headings($color: $color-primary, $emphasis-color: $color-slate) {
+	@for $level from 1 through 6 {
+		h#{$level} {
+			@include heading-level($level, $color, $emphasis-color);
+		}
+	}
+}
+
+@mixin flow-content {
+	> *:first-child {
+		margin-top: 0;
+	}
+
+	> *:last-child {
+		margin-bottom: 0;
+	}
+}
+
+@mixin body-text {
+	@include type-body-m;
+}
+
+@mixin uppercase-label {
+	@include type-menu;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+@mixin focus-hover-opacity($opacity: 0.8) {
+	&:hover,
+	&:focus {
+		opacity: $opacity;
+	}
+}
+
+@mixin corner-bracket-action-icon-fallback {
+	@include type-body-s;
+	font-weight: 700;
+	line-height: 1;
+	text-transform: lowercase;
+}
+
+@mixin fc-button {
+	@include type-button;
+	display: inline-block;
+	max-width: $btn-max-width;
+	padding: 0.75rem 1.5rem;
+	border: 1px solid $color-primary;
+	color: $color-primary;
+	text-decoration: none;
+	transition: background-color $transition-base, color $transition-base;
+
+	&:hover {
+		background-color: $color-primary;
+		color: $color-white;
+	}
+}
+
+@mixin global-base {
+	html {
+		font-size: max(13px, 0.8333vw);
+
+		@include screen-mobile {
+			font-size: 16px;
+		}
+	}
+
+	body {
+		@include font-body;
+		@include type-body-m;
+		color: $color-text;
+		background-color: $color-white;
+	}
+
+	a {
+		@include font-body;
+		color: inherit;
+	}
+
+	button:not(.menu-toggle):not(.site-footer__to-up),
+	input[type='button'],
+	input[type='submit'],
+	input[type='reset'] {
+		max-width: $btn-max-width;
+	}
+
+	@include wysiwyg-headings;
+
+	.type-tagline {
+		@include type-tagline;
+		@include heading-tight;
+		color: $color-primary;
+		@include heading-emphasis;
+	}
+}

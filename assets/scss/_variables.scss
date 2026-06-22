@@ -1,0 +1,317 @@
+@use 'sass:math';
+
+$color-navy: #1e2a38;
+$color-slate: #5f7d95;
+$color-blue-grey: #b8cad8;
+$color-parchment: #d7d6d1;
+$color-off-white: #f4f6f5;
+$color-white: #ffffff;
+
+$color-primary: $color-navy;
+$color-text: $color-navy;
+$color-muted: $color-slate;
+$color-border: $color-parchment;
+$color-border-light: $color-blue-grey;
+$color-surface: $color-off-white;
+$color-black: $color-navy;
+$hero-overlay-gradient-span: 160%;
+$color-hero-text: rgba($color-white, 0.9);
+
+$font-family-heading: 'Playfair Display', 'Times New Roman', Times, serif;
+$font-family-body: 'Albert Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-family-serif: $font-family-heading;
+$font-family-base: $font-family-body;
+
+$line-height-heading: 1.16;
+$line-height-body: 1.6;
+$line-height-menu: 1;
+$line-height-button: 1.1;
+
+$type-h1-min: 32;
+$type-h1-max: 94;
+
+$design-width-desktop: 1920;
+$design-width-mobile: 360;
+$container-design-width: 1667;
+$container-width-desktop: $container-design-width;
+$container-width-mobile: 320;
+$gutter-desktop: 20;
+$gutter-mobile: 20;
+
+$container-vw: 86.8vw;
+$gutter-fluid: max(#{$gutter-mobile}px, calc(#{$gutter-desktop} / #{$design-width-desktop} * 100vw));
+
+$breakpoint-md: 768px;
+$breakpoint-md-lg: 992px;
+$breakpoint-lg: 1240px;
+
+$fc-block-padding-y: 4rem;
+$fc-block-padding-y-mobile: 3.75rem;
+$fc-columns-gap: 5rem;
+$fc-columns-gap-mobile: 2rem;
+$fc-stack-gap: 1.5rem;
+
+$header-height-mobile: 66px;
+$header-height-desktop: max(66px, 5.2083vw);
+
+$grid-lines-color-light: $color-blue-grey;
+$grid-lines-color-dark: rgba($color-slate, 0.3);
+$grid-lines-width: 1px;
+
+$btn-corner-size: 0.875rem;
+$btn-max-width: 360px;
+
+$transition-base: 0.5s ease;
+
+@function fluid-size($min, $max, $min-vw: $design-width-mobile, $max-vw: $design-width-desktop) {
+	@return max(#{$min}px, #{math.div($max, $max-vw) * 100}vw);
+}
+
+@function container-max-width() {
+	@return max(#{$container-width-mobile}px, #{$container-vw});
+}
+
+$corner-bracket-btn-height: fluid-size(58, 63);
+$corner-bracket-radius: 2px;
+$corner-bracket-transition: 0.8s ease;
+$corner-bracket-hover-bg: rgba($color-slate, 0.2);
+
+@mixin screen-mobile {
+	@media not all and (min-width: #{$breakpoint-md}) {
+		@content;
+	}
+}
+
+@mixin screen-tablet {
+	@media (min-width: #{$breakpoint-md}) and (max-width: calc(#{$breakpoint-lg} - 1px)) {
+		@content;
+	}
+}
+
+@mixin screen-tablet-sm {
+	@media (min-width: #{$breakpoint-md}) and (max-width: calc(#{$breakpoint-md-lg} - 1px)) {
+		@content;
+	}
+}
+
+@mixin screen-tablet-lg {
+	@media (min-width: #{$breakpoint-md-lg}) and (max-width: calc(#{$breakpoint-lg} - 1px)) {
+		@content;
+	}
+}
+
+@mixin screen-desktop {
+	@media (min-width: #{$breakpoint-lg}) {
+		@content;
+	}
+}
+
+@mixin screen-handheld {
+	@media not all and (min-width: #{$breakpoint-lg}) {
+		@content;
+	}
+}
+
+@mixin screen-wide {
+	@media (min-width: #{$breakpoint-md}) {
+		@content;
+	}
+}
+
+@mixin primary-menu {
+	#primary-menu,
+	.menu {
+		@content;
+	}
+}
+
+@mixin menu-arrow-icon {
+	mask-image: url('../img/menuarrow.svg');
+	mask-repeat: no-repeat;
+	mask-position: center;
+	mask-size: contain;
+	-webkit-mask-image: url('../img/menuarrow.svg');
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	-webkit-mask-size: contain;
+}
+
+@mixin site-container {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: container-max-width();
+	margin-inline: auto;
+}
+
+@mixin site-gutter {
+	box-sizing: border-box;
+	padding-inline: $gutter-fluid;
+}
+
+@mixin site-section {
+	@include site-gutter;
+}
+
+@mixin full-bleed-width {
+	width: 100vw;
+	max-width: 100vw;
+	margin-left: calc(50% - 50vw);
+}
+
+@mixin grid-lines($color: $grid-lines-color-light, $z: 1) {
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: container-max-width();
+		max-width: 100%;
+		z-index: $z;
+		pointer-events: none;
+		background-image:
+			linear-gradient(to bottom, $color 0px, $color 100%),
+			linear-gradient(to bottom, $color 0px, $color 100%),
+			linear-gradient(to bottom, $color 0px, $color 100%),
+			linear-gradient(to bottom, $color 0px, $color 100%),
+			linear-gradient(to bottom, $color 0px, $color 100%);
+		background-size: $grid-lines-width 100%;
+		background-position: 0% 0, 25% 0, 50% 0, 75% 0, 100% 0;
+		background-repeat: no-repeat;
+
+		@include screen-handheld {
+			background-image:
+				linear-gradient(to bottom, $color 0px, $color 100%),
+				linear-gradient(to bottom, $color 0px, $color 100%),
+				linear-gradient(to bottom, $color 0px, $color 100%);
+			background-position: 0% 0, 50% 0, 100% 0;
+		}
+	}
+}
+
+@function btn-corner-flip-data-uri($flip-x: false, $flip-y: false) {
+	$transform: '';
+
+	@if $flip-x and $flip-y {
+		$transform: '%20transform=%22scale(-1%20-1)%20translate(-14%20-14)%22';
+	} @else if $flip-x {
+		$transform: '%20transform=%22scale(-1%201)%20translate(-14%200)%22';
+	} @else if $flip-y {
+		$transform: '%20transform=%22scale(1%20-1)%20translate(0%20-14)%22';
+	}
+
+	@return url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cg#{$transform}%3E%3Cpath d='M2.5 0C1.11929 0 0 1.11929 0 2.5V13.5H1V2.5C1 1.67157 1.67157 1 2.5 1H13.5V0H2.5Z' fill='white'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@mixin corner-brackets($color, $size: $btn-corner-size) {
+	$corner-tr: btn-corner-flip-data-uri($flip-x: true);
+	$corner-tl: url('../img/btn-corner.svg');
+	$corner-br: btn-corner-flip-data-uri($flip-x: true, $flip-y: true);
+	$corner-bl: btn-corner-flip-data-uri($flip-y: true);
+
+	background-color: $color;
+	-webkit-mask-image: $corner-tr, $corner-tl, $corner-br, $corner-bl;
+	mask-image: $corner-tr, $corner-tl, $corner-br, $corner-bl;
+	-webkit-mask-size: $size $size;
+	mask-size: $size $size;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-position: right top, left top, right bottom, left bottom;
+	mask-position: right top, left top, right bottom, left bottom;
+}
+
+@mixin corner-bracket-control(
+	$color,
+	$size: $btn-corner-size,
+	$radius: $corner-bracket-radius,
+	$border-color: $color,
+	$hover-bg: transparent
+) {
+	outline: none;
+
+	&::before,
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: $radius;
+		pointer-events: none;
+	}
+
+	&::before {
+		@include corner-brackets($color, $size);
+		transition: opacity $corner-bracket-transition;
+	}
+
+	&::after {
+		border: 1px solid transparent;
+		background-color: transparent;
+		transition:
+			border-color $corner-bracket-transition,
+			background-color $corner-bracket-transition;
+	}
+
+	&:hover:not(:disabled),
+	&:focus-visible:not(:disabled) {
+		&::before {
+			opacity: 0;
+		}
+
+		&::after {
+			border-color: $border-color;
+			background-color: $hover-bg;
+		}
+	}
+
+	&:focus-visible:not(:disabled) {
+		outline: 2px solid $border-color;
+		outline-offset: 4px;
+	}
+}
+
+@mixin corner-bracket-button(
+	$color,
+	$size: $btn-corner-size,
+	$height: $corner-bracket-btn-height,
+	$radius: $corner-bracket-radius,
+	$border-color: $color-white,
+	$hover-bg: $corner-bracket-hover-bg
+) {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	height: $height;
+	min-height: $height;
+	max-width: $btn-max-width;
+	padding-inline: 2.6rem;
+	letter-spacing: 0.08em;
+	border: 0;
+	background: transparent;
+	color: $color;
+	text-decoration: none;
+	text-transform: uppercase;
+	cursor: pointer;
+
+	@include corner-bracket-control($color, $size, $radius, $border-color, $hover-bg);
+
+	&:hover,
+	&:focus-visible {
+		color: $color;
+	}
+}
+
+@mixin corner-bracket-action-icon {
+	display: block;
+	width: 1.5rem;
+	height: auto;
+}
+
+@mixin corner-bracket-action-btn-icon-only {
+	width: $corner-bracket-btn-height;
+	min-width: $corner-bracket-btn-height;
+	max-width: $corner-bracket-btn-height;
+	padding: 0;
+}

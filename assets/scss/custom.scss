@@ -1,0 +1,14 @@
+@use 'variables';
+@use 'typography';
+@use 'lenis';
+@use 'header';
+@use 'header-nav';
+@use 'flexible-content/base';
+@use 'flexible-content/hero';
+@use 'flexible-content/stats';
+@use 'flexible-content/highlights';
+@use 'flexible-content/content';
+@use 'flexible-content/cta';
+@use 'footer';
+
+@include typography.global-base;

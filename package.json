@@ -1,0 +1,19 @@
+{
+  "name": "hypothetical-capital",
+  "version": "1.0.0",
+  "description": "Hypothetical Capital WordPress theme",
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "build": "sass assets/scss/custom.scss assets/css/custom.min.css --style=compressed --source-map --no-error-css",
+    "watch": "sass assets/scss/custom.scss assets/css/custom.min.css --style=expanded --source-map --watch --no-error-css",
+    "vendor:gsap": "node -e \"const fs=require('fs');const src='node_modules/gsap/dist/';const dest='assets/js/lib/';fs.mkdirSync(dest,{recursive:true});['gsap.min.js','ScrollTrigger.min.js'].forEach((file)=>fs.copyFileSync(src+file,dest+file));\"",
+    "vendor:lenis": "node -e \"const fs=require('fs');const src='node_modules/lenis/dist/lenis.min.js';const dest='assets/js/lib/lenis.min.js';fs.mkdirSync('assets/js/lib',{recursive:true});fs.copyFileSync(src,dest);\""
+  },
+  "devDependencies": {
+    "sass": "1.77.8"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.23"
+  }
+}

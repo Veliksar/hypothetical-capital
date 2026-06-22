@@ -1,0 +1,160 @@
+@use 'sass:math';
+@use 'variables' as *;
+@use 'typography' as *;
+
+$header-z-index: 1000;
+$header-logo-max-height-desktop: 36px;
+$header-nav-gap: 7.6rem;
+$header-nav-gap-tablet: 2rem;
+$header-nav-gap-tablet-sm: 1.25rem;
+$header-nav-gap-mobile: 1.25rem;
+$header-link-color: rgba($color-white, 0.92);
+$header-link-hover-color: $color-white;
+$header-logo-mobile-range: math.div($breakpoint-md, 1px) - $design-width-mobile;
+
+.site-header {
+	--site-header-link: #{$header-link-color};
+	--site-header-link-hover: #{$header-link-hover-color};
+
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	z-index: $header-z-index;
+	background: transparent;
+	color: var(--site-header-link);
+	border-bottom: 1px solid rgba($color-slate, 0.3);
+	@include site-gutter;
+
+	&__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		height: $header-height-mobile;
+		min-height: $header-height-mobile;
+		padding-block: 0;
+		@include site-container;
+		gap: $header-nav-gap;
+	}
+
+	&__bar {
+		display: contents;
+	}
+
+	.site-branding {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+		margin: 0;
+
+		.custom-logo-link {
+			display: inline-flex;
+			line-height: 0;
+		}
+
+		.custom-logo {
+			display: block;
+			width: auto;
+			height: auto;
+			max-height: 2.5rem;
+		}
+
+		.site-title:not(.screen-reader-text) {
+			@include font-heading;
+			@include heading-tight;
+			font-size: fluid-size($type-h1-min, 26);
+			margin: 0;
+
+			a {
+				color: var(--site-header-link);
+				text-decoration: none;
+				transition: color $transition-base, opacity $transition-base;
+
+				&:hover,
+				&:focus {
+					color: var(--site-header-link-hover);
+					opacity: 0.85;
+				}
+			}
+		}
+
+		.site-description {
+			display: none;
+		}
+	}
+
+	@include screen-mobile {
+		&__inner {
+			flex-wrap: nowrap;
+			gap: $header-nav-gap-mobile;
+		}
+
+		.site-branding {
+			.custom-logo {
+				height: auto;
+				max-height: unquote(
+					'clamp(18px, calc(18px + (10 * (100vw - #{$design-width-mobile}px) / #{$header-logo-mobile-range})), 28px)'
+				);
+			}
+		}
+	}
+
+	@include screen-wide {
+		--site-header-link: #{$color-blue-grey};
+		--site-header-link-hover: #{$header-link-hover-color};
+
+		&__inner {
+			height: $header-height-desktop;
+			min-height: $header-height-desktop;
+			gap: $header-nav-gap-tablet;
+		}
+
+		.site-branding {
+			.custom-logo {
+				max-height: 2rem;
+			}
+		}
+	}
+
+	@include screen-tablet-sm {
+		&__inner {
+			gap: $header-nav-gap-tablet-sm;
+		}
+
+		.site-branding {
+			.custom-logo {
+				max-height: 1.75rem;
+			}
+		}
+	}
+
+	@include screen-tablet-lg {
+		.site-branding {
+			.custom-logo {
+				max-height: $header-logo-max-height-desktop;
+			}
+		}
+	}
+
+	@include screen-desktop {
+		&__inner {
+			gap: $header-nav-gap;
+		}
+
+		.site-branding {
+			.custom-logo {
+				max-height: $header-logo-max-height-desktop;
+			}
+		}
+	}
+}
+
+.admin-bar .site-header {
+	top: 32px;
+
+	@media (max-width: 782px) {
+		top: 46px;
+	}
+}

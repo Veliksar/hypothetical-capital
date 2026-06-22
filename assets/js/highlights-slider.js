@@ -8,6 +8,7 @@
 
 	const SLIDE_DURATION = 1;
 	const OVERLAY_DURATION = 0.5;
+	const AUTOPLAY_INTERVAL = 3000;
 
 	sliders.forEach( function( slider ) {
 		const viewport = slider.querySelector( '.fc-block__highlights-viewport' );
@@ -28,6 +29,11 @@
 		let isAnimating = false;
 		let activeTimeline = null;
 		let swipeController = null;
+		let autoplayTimer = null;
+
+		function wrapIndex( index ) {
+			return ( ( index % total ) + total ) % total;
+		}
 
 		function getCard( index ) {
 			if ( index < 0 || index >= total ) {
@@ -230,13 +236,15 @@
 		}
 
 		function updateCardInteractivity() {
-			const hasNextPreview = currentIndex < total - 1;
-			const hasSkipPreview = currentIndex < total - 2 && ! isMobileLayout();
+			const hasNextPreview = total > 1;
+			const nextPreviewIndex = wrapIndex( currentIndex + 1 );
+			const skipPreviewIndex = wrapIndex( currentIndex + 2 );
+			const hasSkipPreview = total > 2 && ! isMobileLayout() && skipPreviewIndex !== nextPreviewIndex;
 
 			cards.forEach( function( card ) {
 				const cardIndex = parseInt( card.dataset.cardIndex, 10 );
-				const isNextPreview = hasNextPreview && cardIndex === currentIndex + 1;
-				const isSkipPreview = hasSkipPreview && cardIndex === currentIndex + 2;
+				const isNextPreview = hasNextPreview && cardIndex === nextPreviewIndex;
+				const isSkipPreview = hasSkipPreview && cardIndex === skipPreviewIndex;
 
 				card.classList.toggle( 'is-next-trigger', isNextPreview );
 				card.classList.toggle( 'is-skip-trigger', isSkipPreview );
@@ -257,48 +265,99 @@
 			} );
 		}
 
+		function getVisibleSlotIndices() {
+			return {
+				primary: currentIndex,
+				secondary: wrapIndex( currentIndex + 1 ),
+				tertiary: wrapIndex( currentIndex + 2 ),
+			};
+		}
+
+		function shouldShowTertiarySlot() {
+			if ( isMobileLayout() || total <= 2 ) {
+				return false;
+			}
+
+			const slots = getVisibleSlotIndices();
+
+			return slots.tertiary !== slots.primary && slots.tertiary !== slots.secondary;
+		}
+
+		function getCardSlotRole( cardIndex ) {
+			const slots = getVisibleSlotIndices();
+
+			if ( cardIndex === slots.primary ) {
+				return 'primary';
+			}
+
+			if ( cardIndex === slots.secondary ) {
+				return 'secondary';
+			}
+
+			if ( shouldShowTertiarySlot() && cardIndex === slots.tertiary ) {
+				return 'tertiary';
+			}
+
+			return 'hidden';
+		}
+
+		function getForwardOffset( cardIndex ) {
+			if ( cardIndex >= currentIndex ) {
+				return cardIndex - currentIndex;
+			}
+
+			return total - currentIndex + cardIndex;
+		}
+
+		function getHiddenSide( cardIndex ) {
+			if ( cardIndex === currentIndex - 1 ) {
+				return 'left';
+			}
+
+			if ( cardIndex < currentIndex ) {
+				return getForwardOffset( cardIndex ) > 2 ? 'right' : 'left';
+			}
+
+			return 'right';
+		}
+
 		function layoutIdle() {
 			const slotMetrics = getSlotMetrics();
 			const stageWidth = stage.offsetWidth;
 			const hiddenLeft = getHiddenLeftMetrics( slotMetrics );
 			const hiddenRight = getHiddenRightMetrics( slotMetrics, stageWidth );
-			const mobileLayout = isMobileLayout();
 
 			cards.forEach( function( card ) {
 				const cardIndex = parseInt( card.dataset.cardIndex, 10 );
-				const offset = cardIndex - currentIndex;
+				const slotRole = getCardSlotRole( cardIndex );
 				const logo = getCardLogo( card );
 				const overlay = getCardOverlay( card );
 
-				if ( offset === 0 ) {
+				if ( slotRole === 'primary' ) {
 					applyCardState( card, slotMetrics[ 0 ], true );
 					setLogoVisible( logo );
 					setOverlayHidden( overlay );
 					return;
 				}
 
-				if ( offset === 1 ) {
+				if ( slotRole === 'secondary' ) {
 					applyCardState( card, slotMetrics[ 1 ], true );
 					setLogoHidden( logo );
 					setOverlayVisible( overlay );
 					return;
 				}
 
-				if ( offset === 2 && ! mobileLayout ) {
+				if ( slotRole === 'tertiary' ) {
 					applyCardState( card, slotMetrics[ 2 ], true );
 					setLogoHidden( logo );
 					setOverlayVisible( overlay );
 					return;
 				}
 
-				if ( offset < 0 ) {
-					applyCardState( card, hiddenLeft, false );
-					setLogoHidden( logo );
-					setOverlayVisible( overlay );
-					return;
-				}
+				const hiddenSide = getHiddenSide( cardIndex );
+				const hiddenMetrics = hiddenSide === 'left' ? hiddenLeft : hiddenRight;
 
-				applyCardState( card, hiddenRight, false );
+				applyCardState( card, hiddenMetrics, false );
 				setLogoHidden( logo );
 				setOverlayVisible( overlay );
 			} );
@@ -311,7 +370,49 @@
 
 		function updateButtons() {
 			prevButton.disabled = currentIndex <= 0 || isAnimating;
-			nextButton.disabled = currentIndex >= total - 1 || isAnimating;
+			nextButton.disabled = total <= 1 || isAnimating;
+		}
+
+		function stopAutoplay() {
+			if ( autoplayTimer ) {
+				clearInterval( autoplayTimer );
+				autoplayTimer = null;
+			}
+		}
+
+		function startAutoplay() {
+			stopAutoplay();
+
+			if ( total <= 1 || animations.prefersReducedMotion() ) {
+				return;
+			}
+
+			autoplayTimer = setInterval( function() {
+				if ( document.hidden || isAnimating ) {
+					return;
+				}
+
+				animateNext();
+			}, AUTOPLAY_INTERVAL );
+		}
+
+		function resetAutoplay() {
+			stopAutoplay();
+			startAutoplay();
+		}
+
+		function getEnteringCard( fromIndex ) {
+			const enteringIndex = wrapIndex( fromIndex + 3 );
+
+			if (
+				enteringIndex === wrapIndex( fromIndex ) ||
+				enteringIndex === wrapIndex( fromIndex + 1 ) ||
+				enteringIndex === wrapIndex( fromIndex + 2 )
+			) {
+				return null;
+			}
+
+			return getCard( enteringIndex );
 		}
 
 		function finishTransition( nextIndex ) {
@@ -319,12 +420,15 @@
 			isAnimating = false;
 			activeTimeline = null;
 			layoutIdle();
+			resetAutoplay();
 		}
 
 		function animateNext() {
-			if ( isAnimating || currentIndex >= total - 1 ) {
+			if ( isAnimating || total <= 1 ) {
 				return;
 			}
+
+			const nextIndex = wrapIndex( currentIndex + 1 );
 
 			isAnimating = true;
 			updateButtons();
@@ -334,15 +438,15 @@
 			const hiddenLeft = getHiddenLeftMetrics( slotMetrics );
 			const hiddenRight = getHiddenRightMetrics( slotMetrics, stageWidth );
 			const leaving = getCard( currentIndex );
-			const toPrimary = getCard( currentIndex + 1 );
-			const toSecondary = getCard( currentIndex + 2 );
-			const entering = getCard( currentIndex + 3 );
+			const toPrimary = getCard( wrapIndex( currentIndex + 1 ) );
+			const toSecondary = getCard( wrapIndex( currentIndex + 2 ) );
+			const entering = getEnteringCard( currentIndex );
 			const currentCaption = getCaption( currentIndex );
-			const nextCaption = getCaption( currentIndex + 1 );
+			const nextCaption = getCaption( nextIndex );
 			const timeline = animations.createTimeline( {
 				defaults: { duration: animations.getDuration( SLIDE_DURATION ) },
 				onComplete: function() {
-					finishTransition( currentIndex + 1 );
+					finishTransition( nextIndex );
 				},
 			} );
 
@@ -647,6 +751,24 @@
 		prevButton.addEventListener( 'click', animatePrev );
 		nextButton.addEventListener( 'click', animateNext );
 
+		slider.addEventListener( 'mouseenter', stopAutoplay );
+		slider.addEventListener( 'mouseleave', startAutoplay );
+		slider.addEventListener( 'focusin', stopAutoplay );
+		slider.addEventListener( 'focusout', function( event ) {
+			if ( ! slider.contains( event.relatedTarget ) ) {
+				startAutoplay();
+			}
+		} );
+
+		document.addEventListener( 'visibilitychange', function() {
+			if ( document.hidden ) {
+				stopAutoplay();
+				return;
+			}
+
+			startAutoplay();
+		} );
+
 		cards.forEach( function( card ) {
 			card.addEventListener( 'click', handleNextTrigger );
 			card.addEventListener( 'keydown', handleNextTriggerKeydown );
@@ -659,8 +781,10 @@
 				isAnimating = false;
 			}
 
+			stopAutoplay();
 			updateViewportWidth();
 			layoutIdle();
+			startAutoplay();
 		}, 150 );
 
 		if ( animations.bindSwipe ) {
@@ -710,5 +834,6 @@
 
 		updateViewportWidth();
 		layoutIdle();
+		startAutoplay();
 	} );
 }() );

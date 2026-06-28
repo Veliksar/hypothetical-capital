@@ -1,5 +1,99 @@
 @use '../variables' as *;
+@use '../typography' as *;
 
 .fc-block--content {
-	background: $color-white;
+	background-color: $color-white;
+	color: $color-text;
+	transition: background-color $transition-base, color $transition-base;
+
+	// Background options
+	&.fc-block--content-bg-white {
+		background-color: $color-white;
+		color: $color-text;
+	}
+
+	&.fc-block--content-bg-surface {
+		background-color: $color-surface;
+		color: $color-text;
+	}
+
+	&.fc-block--content-bg-navy {
+		background-color: $color-navy;
+		color: $color-white;
+
+		// Re-apply dark grid lines over navy
+		@include grid-lines($grid-lines-color-dark);
+
+		h1, h2, h3, h4, h5, h6 {
+			color: $color-white;
+		}
+
+		strong, b {
+			color: $color-blue-grey;
+		}
+
+		a {
+			color: $color-blue-grey;
+
+			&:hover,
+			&:focus {
+				color: $color-white;
+			}
+		}
+	}
+
+	// Width options
+	&.fc-block--content-width-readable {
+		.fc-block__inner {
+			max-width: 45rem; // ~720px - ideal line length for readability (~70-80 chars)
+		}
+	}
+
+	&.fc-block--content-width-standard {
+		.fc-block__inner {
+			max-width: 62.5rem; // ~1000px - good for mixed content
+		}
+	}
+
+	&.fc-block--content-width-full {
+		.fc-block__inner {
+			max-width: container-max-width(); // 1667px / 86.8vw - full width layout
+		}
+	}
+
+	// Alignment options
+	&.fc-block--content-align-left {
+		text-align: left;
+
+		.fc-block__inner {
+			margin-inline: 0 auto;
+		}
+	}
+
+	&.fc-block--content-align-center {
+		text-align: center;
+
+		.fc-block__inner {
+			margin-inline: auto;
+		}
+
+		// Keep list alignment left-aligned for readability when centered
+		ul, ol {
+			display: inline-block;
+			text-align: left;
+		}
+	}
+
+	// Vertical padding options
+	&.fc-block--content-pad-small {
+		padding-block: calc(#{$fc-block-padding-y} * 0.5);
+
+		@include screen-mobile {
+			padding-block: calc(#{$fc-block-padding-y-mobile} * 0.5);
+		}
+	}
+
+	&.fc-block--content-pad-none {
+		padding-block: 0;
+	}
 }
